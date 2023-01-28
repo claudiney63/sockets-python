@@ -2,7 +2,7 @@ from socket import *
 from threading import Thread
 
 HOST = "192.168.0.37"
-PORT = 50000
+PORT = 5555
 
 print(f"HOST: {HOST} PORT: {PORT}")
 

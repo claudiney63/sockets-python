@@ -4,7 +4,7 @@ from threading import *
 lista_de_conn = []
 lista_de_adress = []
 
-HOST = '192.168.0.37'
+HOST = '192.168.57.204'
 PORT = 50000
 
 print(f"HOST: {HOST} PORT: {PORT}")

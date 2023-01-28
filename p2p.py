@@ -1,21 +1,49 @@
 import socket
+import threading
 
-# Cria um socket TCP
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+class P2P:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.nodes = []
 
-# Define o endereço IP e a porta do par a se conectar
-peer_ip = '192.168.0.37'
-peer_port = 50000
+    def iniciar(self):
+        servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        servidor.bind((self.host, self.port)) #Conectando ao servidor, host e porta
+        servidor.listen()
+        print(f'\nSuper nó escutando em Host: {self.host}, Porta: {self.port}...')
 
-# Tenta se conectar ao par
-s.connect((peer_ip, peer_port))
+        while True:
+            client, address = servidor.accept()
+            client.send(f'\nOlá, bem-vindo a rede P2P {self.host}!!'.encode())
+            self.nodes.append(client)
+            threading.Thread(target=self.clientes_conectados, args=(client,)).start()
 
-# Envia o arquivo PDF para o par conectado
-with open('arquivo.pdf', 'rb') as f:
-    data = f.read()
-    s.sendall(data)
-    print('Enviando arquivo PDF...')
-print('Arquivo enviado com sucesso')
+    def clientes_conectados(self, client):
+        while True:
+            mensagem = client.recv(1024)
+            if not mensagem:
+                print(f'Nó {client.getpeername()} desconectado!')
+                self.nodes.remove(client)
+                client.close()
+                break
+            else:
+                print(f'Mensagem recebida de {client.getpeername()} : {mensagem.decode()}')
+                for node in self.nodes:
+                    if node != client:
+                        node.sendall(mensagem)
+    
+    def conectando_em_No(self, host, port):
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((host, port))
+        self.nodes.append(client)
+        while True:
+            threading.Thread(target=self.clientes_conectados, args=(client,)).start()
+            mensagem = input("\nEnvie uma mensagem: ")
+            if mensagem == 'Exit':
+                client.close()
+            client.sendall(mensagem.encode())
 
-# Fecha a conexão com o par
-s.close()
+if __name__ == "__main__":
+    novo_node = P2P('192.168.0.37', 5555)
+    novo_node.iniciar()
