@@ -4,7 +4,7 @@ from threading import *
 lista_de_conn = []
 lista_de_adress = []
 
-HOST = '192.168.57.204'
+HOST = '192.168.0.37'
 PORT = 50000
 
 print(f"HOST: {HOST} PORT: {PORT}")
@@ -18,6 +18,15 @@ print('Aguardando conexao...')
 
 ip = socket.gethostbyname(socket.gethostname())
 print(f"IP: {ip}")
+
+def enviar_mensagem():
+    while True:
+        data = input("Envie uma mensagem: ")
+
+        data = data.encode()
+
+        for cada_conn in range(len(lista_de_conn)):
+                lista_de_conn[cada_conn].sendto(data, lista_de_adress[cada_conn])
 
 def server_connection():
     conn, adress = s.accept()
@@ -46,3 +55,5 @@ def server_connection():
 for _ in range(4):
     t = Thread(target=server_connection)
     t.start()
+
+envioMensagem = Thread(target=enviar_mensagem).start()

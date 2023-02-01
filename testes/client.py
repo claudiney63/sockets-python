@@ -2,7 +2,7 @@ from socket import *
 from threading import Thread
 
 HOST = "192.168.0.37"
-PORT = 5555
+PORT = 50000
 
 print(f"HOST: {HOST} PORT: {PORT}")
 
@@ -11,8 +11,9 @@ clie.connect((HOST, PORT)) # conecta ao servidor
 
 def enviar():
     while True:
-        mensagem = input("Digite algo: ")
-        clie.sendall(mensagem.encode("utf-8")) # envia a mensagem codificada em bits
+        data = input("Digite algo: ")
+        data = f'{data}'
+        clie.send(data.encode("utf-8")) # envia a mensagem codificada em bits
 
 def receber():
     while True:
