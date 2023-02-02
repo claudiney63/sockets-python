@@ -1,6 +1,9 @@
 import socket
 import threading
 
+HOST = '192.168.0.37'
+PORT = 5002
+
 class P2P:
     def __init__(self, host, port):
         self.host = host
@@ -45,5 +48,5 @@ class P2P:
             client.sendall(mensagem.encode())
 
 if __name__ == "__main__":
-    novo_node = P2P('192.168.0.37', 5555)
-    novo_node.iniciar()
+    novo_node = P2P(HOST, PORT)
+    novo_node.conectando_em_No(HOST, 5000)
