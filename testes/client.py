@@ -12,24 +12,20 @@ clie.connect((HOST, PORT)) # conecta ao servidor
 def enviar():
     while True:
         data = input("Digite algo: ")
+
+        if data == 'Exit':
+            print('Fechando conexao...')
+            clie.close()
+            break
+
         data = f'{data}'
         clie.send(data.encode("utf-8")) # envia a mensagem codificada em bits
 
 def receber():
     while True:
         data = clie.recv(1024) # 1024 = tamanho do buffer
-        print(data.decode("utf-8")) # decodifica a mensagem pq vem em bits
+        print(f'Mensagem Recebida: {data.decode("utf-8")}') # decodifica a mensagem pq vem em bits
+        
 
 Thread(target=enviar).start()
 Thread(target=receber).start()
-
-# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# s.connect((HOST, PORT))
-
-# while True:
-#     mensagem = input("Digite uma mensagem: ")
-#     s.sendall(str.encode(f'{mensagem}')) #codifica na forma de string
-#     data = s.recv(1024)
-
-#     print(f'Mensagem ecoada!, {data.decode()}')

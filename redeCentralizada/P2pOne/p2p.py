@@ -20,11 +20,12 @@ class P2P:
             client, address = servidor.accept()
             client.send(f'\nOlá, bem-vindo a rede P2P {self.host}!!'.encode())
             self.nodes.append(client)
-            threading.Thread(target=self.clientes_conectados, args=(client,)).start()
             mensagem = input("\nEnvie uma mensagem: ")
             if mensagem == 'Exit':
                 client.close()
             client.sendall(mensagem.encode())
+            threading.Thread(target=self.clientes_conectados, args=(client,)).start()
+            
 
     def clientes_conectados(self, client):
         while True:
@@ -45,11 +46,12 @@ class P2P:
         client.connect((host, port))
         self.nodes.append(client)
         while True:
-            threading.Thread(target=self.clientes_conectados, args=(client,)).start()
             mensagem = input("\nEnvie uma mensagem: ")
             if mensagem == 'Exit':
                 client.close()
             client.sendall(mensagem.encode())
+            threading.Thread(target=self.clientes_conectados, args=(client,)).start()
+            
 
 if __name__ == "__main__":
     novo_node = P2P(HOST, PORT)

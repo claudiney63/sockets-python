@@ -36,24 +36,26 @@ def server_connection():
     lista_de_conn.append(conn)
     lista_de_adress.append(adress)
 
-    print(f'Conectado em: {adress}')
     while True:
         data = conn.recv(1024)
 
         if not data:
             print('Fechando conexao...')
+            lista_de_conn.remove(conn)
+            lista_de_adress.remove(adress)
             conn.close()
             break
 
         #Retornando a maensagem para todo cliente na rede
-        for cada_conn in range(len(lista_de_conn)):
-            lista_de_conn[cada_conn].sendto(data, lista_de_adress[cada_conn])
+        for cada_conn in lista_de_conn:
+            if cada_conn != conn:
+                cada_conn.sendall(data)
 
-        # conn.sendall(data)  # retornando a mensagem para o cliente
-        print(f'{data.decode()}')
+        print(f'Mensagem Recebida: {data.decode()}')
 
 for _ in range(4):
     t = Thread(target=server_connection)
     t.start()
 
-envioMensagem = Thread(target=enviar_mensagem).start()
+envioMensagem = Thread(target=enviar_mensagem)
+envioMensagem.start()
