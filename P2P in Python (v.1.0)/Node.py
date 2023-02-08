@@ -101,6 +101,12 @@ class Node:
                     self.lista_contatos[self.nome_contact] = info_add
 
     def buscar_contato(self, destino, message_controller, command, info_add):
+        """
+        A função busca um contato em uma lista de contatos mantida pelo objeto de um peer. 
+        Se o contato procurado estiver na lista, o peer envia a informação de onde o contato foi encontrado para o destinatário da mensagem. 
+        Caso contrário, se o destinatário da mensagem for o próprio peer, ele imprime "Contato não encontrado". 
+        Se o destinatário não for o próprio peer, a mensagem é reencaminhada para outro peer.
+        """
         if destino == "BUSCAR_CONTATO":
             if info_add in self.lista_contatos:
                 self.cliente.send(
@@ -109,8 +115,7 @@ class Node:
                 if message_controller == f"P{self.id}":
                     print("Contato não encontrado")
                 else:
-                    self.cliente.send(
-                        f"{command}|".encode("utf-8"))
+                    self.cliente.send(f"{command}|".encode("utf-8"))
 
 
 if __name__ == "__main__":
