@@ -7,29 +7,27 @@ class Node_P2P:
         self.host = host
         self.port = port
         self.nextNode = nextNode
-        self.status = {
-            'id': idPeer,
-            'id_sucessor': ''
-        }
-        self.nodes = []
+        self.nodes = [(socket.gethostbyname(socket.gethostname()), 5000)]
 
     def iniciar_super_no(self):
         super_no = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         super_no.bind((self.host, self.port))
-        super_no.listen()
+        super_no.listen(5)
+                
         print(f'\nSuper nó escutando em Host: {self.host}, Porta: {self.port}...')
-        cont = 0
 
         while True:
 
             client, adress = super_no.accept()
 
-            if cont == 0:
+            self.nodes.append(adress)
+
+            if client:
                 threading.Thread(target=self.conectando_node, args=(self.host, self.nextNode)).start()
-                cont = 1
+
+            print(self.nodes)
 
             client.send(f'Olá {adress} bem-vindo a rede P2P!'.encode())
-            self.nodes.append(client)
             
             threading.Thread(target=self.nodes_conectados, args=(client,)).start()
 
@@ -44,25 +42,38 @@ class Node_P2P:
                 client.close()
                 break
             else:
-                client.send(mensagem)
-                print(f'\nMensagem recebida de {client.getpeername()} : {mensagem.decode()}')
+                new_mensage = f'{mensagem.decode()}'
+                new_mensage = new_mensage.split(';')
+                mensagem = new_mensage[-1]
+
+                if new_mensage[0] == f'{self.idPeer}':
+                    print(f'\nMensagem recebida de {client.getpeername()} : {mensagem}')
+                elif new_mensage[0] > f'{len(self.nodes)}':
+                    break
+                else:
+                    id_new = int(new_mensage[0], base = 10) + 1
+                    new_mensage = f'{id_new};{mensagem}'
+                    client.send(new_mensage.encode())
 
     def conectando_node(self, host, port):
 
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect((host, port))
-        self.nodes.append(client)
-
         while True:
-            mensagem = input('\nEnvie uma mnesagem: ')
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect((host, port))
 
-            if mensagem == '' or mensagem == 'exit':
-                client.close()
-                break
+            while True:
+                mensagem = input('\nEnvie uma mensagem: ')
 
-            client.sendall(mensagem.encode())
-            threading.Thread(target=self.nodes_conectados, args=(client,)).start()
+                if mensagem == '' or mensagem == 'exit':
+                    client.close()
+                    break
 
+                id = self.idPeer + 1
+
+                mensagem = f'{id};{mensagem}'
+
+                client.sendall(mensagem.encode())
+                threading.Thread(target=self.nodes_conectados, args=(client,)).start()
 
 if __name__ == '__main__':
     superNo = Node_P2P(1, '192.168.0.37', 5000, 5001).iniciar_super_no()
