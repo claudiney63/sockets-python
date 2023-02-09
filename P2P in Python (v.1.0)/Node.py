@@ -6,24 +6,26 @@ class Node:
     def __init__(self, node_ip):
         self.node_ip = node_ip
         self.node_port = randint(5001, 5999)
-        self.super_id = '192.168.0.37'
+        self.super_ip = '192.168.0.37'
         self.super_port = 5000
         self.id = 0
         self.lista_contatos = {}
         self.nome_contact = ""
-        self.connect_to = (self.super_id, self.super_port)
+        self.number_contato = 0
+        self.connect_to = (self.super_ip, self.super_port)
 
         self.servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.servidor.bind((self.node_ip, self.node_port))
         self.servidor.listen()
 
         self.cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.cliente.connect((self.super_id, self.super_port))
+        self.cliente.connect((self.super_ip, self.super_port))
         self.cliente.send(
             f"ID;{self.node_ip};{self.node_port}".encode("utf-8"))
 
     def start_node(self):
         Thread(target=self.new_node).start()
+        Thread(target=self.central_comandos).start()
 
     def new_node(self):
         while True:
@@ -103,7 +105,7 @@ class Node:
                         f"P{int(destino[1])+1};{message_controller};{info_add}|".encode("utf-8"))
 
                 if message_controller == "ENCONTROU_CONTATO":
-                    print(f"Contato encontrado: {info_add}")
+                    print(f"\nContato encontrado: {info_add}")
                     self.lista_contatos[self.nome_contact] = info_add
 
     def buscar_contato(self, destino, message_controller, command, info_add):
@@ -122,6 +124,48 @@ class Node:
                     print("Contato não encontrado")
                 else:
                     self.cliente.send(f"{command}|".encode("utf-8"))
+
+    def central_comandos(self):
+        while True:
+            print("\nLISTA TELEFONICA")
+            print("1 - Adicionar contato")
+            print("2 - Listar contatos")
+            print("3 - Buscar contato")
+            print("4 - Meu ID")
+            print("5 - Meus pares")
+            print("6 - Sair da rede")
+
+            escolha = int(input("\nDigite o que deseja: "))
+
+            if escolha == 1:
+                self.nome_contact = input("Nome: ")
+                self.number_contato = int(input("Numero: "))
+
+                self.lista_contatos[self.nome_contact] = self.number_contato
+                print("Contato salvo!!")
+
+            if escolha == 2:
+                print(self.lista_contatos)
+
+            if escolha == 3:
+                self.nome_contact = input("Nome: ")
+
+                if self.nome_contact in self.lista_contatos:
+                    print(self.lista_contatos[self.nome_contact])
+                else:
+                    self.cliente.send(f"BUSCAR_CONTATO;P{self.id};{self.nome_contact}".encode("utf-8"))
+
+            if escolha == 4:
+                print(f"Olá sou o P{self.id}")
+
+            if escolha == 5:
+                print(self.connect_to)
+
+            if escolha == 6:
+                self.cliente.send(f"SUPER_NO;REMOVER_NODE;P{self.id}".encode("utf-8"))
+                self.cliente.close()
+                self.servidor.close()
+                print(f"Node P{self.id} saiu da rede!!")
 
 
 if __name__ == "__main__":
