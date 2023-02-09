@@ -45,7 +45,7 @@ class Node:
 
                     self.verifica_id(destino, info_add, command)
 
-                    self.receber_mensagem(destino, command, message_controller)
+                    self.receber_mensagem(destino, command, message_controller, info_add)
 
                     self.buscar_contato(destino, message_controller, command, info_add)
 
@@ -65,7 +65,7 @@ class Node:
             else:
                 self.cliente.send(f"{command}|".encode("utf-8"))
 
-    def receber_mensagem(self, destino, command, message_controller):
+    def receber_mensagem(self, destino, command, message_controller, info_add):
         """
         Essa função verifica se a mensagem é destinada a um node específico (verificado pelo primeiro caractere da variável "destino" ser igual a "P"). 
         Se for para outro node, a mensagem é reencaminhada para o próximo. Se for para esse node, ele executa o comando especificado na mensagem.
@@ -81,11 +81,17 @@ class Node:
 
             elif destino == f"P{self.id}":
                 if message_controller == "CONECTAR_NODE":
+                    # print(info_add.split(","))
+
+                    id_conect = info_add.split(",")[0].split("'")[1]
+                    port_conect = info_add.split(",")[1].split(')')[0].split(' ')[1]
+
+                    # print(id_conect)
+                    # print(port_conect)
+
                     self.cliente.close()
 
-                    print(info_add)
-
-                    self.connect_to = (info_add[2:16], int(info_add[19:22]))
+                    self.connect_to = (f'{id_conect}', int(port_conect))
                     self.cliente = socket.socket(
                         socket.AF_INET, socket.SOCK_STREAM)
                     self.cliente.connect(self.connect_to)
