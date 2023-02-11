@@ -34,7 +34,7 @@ class SuperNO:
                         continue
 
                     print(f"\nCOMANDO DO SUPER NÓ: ")
-                    destino, message_controller, info_add, = command.split(";")
+                    destino, message_controller, info_add = command.split("//")
                     print(f'Destino: {destino}')
                     print(f'Mensagem de Controler: {message_controller}')
                     print(f'Info Adicional: {info_add}\n')
@@ -45,9 +45,17 @@ class SuperNO:
 
                     self.controller_super_no(destino, message_controller, info_add)
 
-                    self.busca_contato(destino, command)
+                    self.busca_arquivo(destino, command)
 
     def entrada_node(self, destino, info_add, adr):
+        """
+        Essa função entrada_node que controla a adição de novos nós em uma rede peer-to-peer. 
+        Se a mensagem recebida tiver o destino "ID", o endereço do novo nó é adicionado à lista de pares peers_list.
+        Se a lista tiver apenas um nó, o super nó se conecta a ele enviando uma mensagem com o comando "NOVO_ID" 
+        e o número de identificação atual (0). Se já houver mais de um nó, o último nó na lista é notificado 
+        para se conectar ao novo nó enviando uma mensagem com o comando "CONECTAR_NODE" e o endereço do novo nó. 
+        Além disso, uma mensagem com o comando "NOVO_ID" é enviada para o novo nó informando-o sobre seu número de identificação.
+        """
         if (destino == "ID"):
             self.peers_list.append((adr[0], int(info_add)))
 
@@ -56,17 +64,22 @@ class SuperNO:
                 self.connect_to = self.peers_list[1]
                 self.cliente.connect(self.connect_to)
                 self.cliente.send(
-                    f"ID;NOVO_ID;{len(self.peers_list) - 1}|".encode("utf-8"))
+                    f"ID//NOVO_ID//{len(self.peers_list) - 1}|".encode("utf-8"))
 
             # Se não for o unico par da rede, vai ser o novo ultimo par
             if (len(self.peers_list) > 2):
                 ultimo_par = len(self.peers_list) - 2
                 self.cliente.send(
-                    f"P{ultimo_par};CONECTAR_NODE;{self.peers_list[-1]}|".encode("utf-8"))
+                    f"P{ultimo_par}//CONECTAR_NODE//{self.peers_list[-1]}|".encode("utf-8"))
                 self.cliente.send(
-                    f"ID;NOVO_ID;{len(self.peers_list) - 1}|".encode("utf-8"))
+                    f"ID//NOVO_ID//{len(self.peers_list) - 1}|".encode("utf-8"))
 
     def entrada_novo_node(self, destino, message_controller, command):
+        """
+        Esta função manipula a entrada de um novo nó em uma rede P2P. Se o destino da mensagem for um peer (identificado pelo prefixo "P"), 
+        então a mensagem é processada. Se a mensagem contém o controle "NOVO_ID", a função não faz nada. Caso contrário, a mensagem é 
+        repassada para o próximo peer na rede.
+        """
         if (destino[0] == "P"):
             if message_controller == "NOVO_ID":
                 pass
@@ -74,12 +87,25 @@ class SuperNO:
                 self.cliente.send(f"{command}|".encode("utf-8"))
 
     def controller_super_no(self, destino, message_controller, info_add):
+        """
+        A função tem três parâmetros de entrada: destino, message_controller, info_add. A lógica da função depende do valor de destino, que deve ser "SUPER_NO" 
+        para a função ser executada. Se o valor de message_controller for "REMOVER_NODE", a função remove um nó da lista de peers self.peers_list, 
+        dependendo do valor de info_add[1], que é o índice do nó a ser removido na lista. 
+        
+        Se o nó a ser removido for o último da lista, 
+        ele é removido e uma mensagem é enviada para o penúltimo nó, solicitando que ele se conecte ao primeiro nó da lista. Se o nó a ser removido 
+        não for o primeiro nem o último, ele é removido da lista e duas mensagens são enviadas, uma para o nó anterior, solicitando que se conecte ao 
+        nó imediatamente após o removido, e outra para o próximo nó, informando que o seu ID agora é o mesmo do nó removido.
+
+        Se o nó a ser removido for o primeiro, a função remove ele da lista, fecha a conexão atual e estabelece uma nova conexão com o 
+        segundo nó da lista. Uma mensagem é enviada ao segundo nó, informando que ele é agora o nó de ID 1.
+        """
         if (destino == "SUPER_NO"):
             if (message_controller == "REMOVER_NODE"):
                 if int(info_add[1]) == len(self.peers_list) - 1:
                     self.peers_list.pop(-1)
                     self.cliente.send(
-                        f"P{len(self.peers_list) - 1};CONECTAR_NODE;{self.peers_list[0]}|".encode("utf-8"))
+                        f"P{len(self.peers_list) - 1}//CONECTAR_NODE//{self.peers_list[0]}|".encode("utf-8"))
 
                 elif info_add[1] != "1":
                     node_saida = int(info_add[1])
@@ -88,11 +114,10 @@ class SuperNO:
                     node_anterior = node_saida - 1
 
                     cliente.send(
-                        f"P{node_anterior};CONECTAR_NODE;{self.peers_list[node_saida]}|".encode("utf-8"))
+                        f"P{node_anterior}//CONECTAR_NODE//{self.peers_list[node_saida]}|".encode("utf-8"))
                     cliente.send(
-                        f"P{node_saida + 1};NOVO_ID;{node_saida}|".encode("utf-8"))
+                        f"P{node_saida + 1}//NOVO_ID//{node_saida}|".encode("utf-8"))
 
-                # Caso o no que saiu seja o primeiro
                 elif info_add[1] == "1":
                     self.peers_list.pop(1)
                     cliente.close()
@@ -100,12 +125,17 @@ class SuperNO:
 
                     cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     cliente.connect(connect_to)
-                    print("Conectado com o novo par")
-                    cliente.send(f"P2;NOVO_ID;1|".encode("utf-8"))
+                    print("Novo nó conectado")
+                    cliente.send(f"P2//NOVO_ID//1|".encode("utf-8"))
 
-    def busca_contato(self, destino, command):
-        # Mensagem de busca de contato nas lista telefonicas
-        if (destino == "BUSCAR_CONTATO"):
+    def busca_arquivo(self, destino, command):
+        """
+        Esta função realiza uma busca de um arquivo em algum outro node na rede. A função "busca_arquivo" recebe 
+        como parâmetros "destino" e "command". Se o valor de "destino" for "BUSCA_ARQUIVO", o código envia a 
+        mensagem de busca de arquivo (representada por "command") para o socket conectado (representado por "self.cliente"). 
+        A mensagem é enviada em formato de codificação "utf-8" com o caractere "|" no final.
+        """
+        if (destino == "BUSCA_ARQUIVO"):
             self.cliente.send(f"{command}|".encode("utf-8"))
 
 if __name__ == "__main__":
