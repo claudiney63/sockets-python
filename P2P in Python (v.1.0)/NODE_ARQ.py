@@ -105,8 +105,8 @@ class Node:
 
                 if message_controller == "ENCONTROU_ARQUIVO":
                     print(f"\nArquivo encontrado: \n{info_add}\n")
-                    # with open(self.arqui_recebido, 'wb') as file:
-                    #     file.write(info_add)
+                    with open(self.arqui_recebido, 'w') as file:
+                        file.write(info_add)
                     #######
 
     def busca_arquivo(self, destino, message_controller, command, info_add):
@@ -134,12 +134,13 @@ class Node:
 
     def central_comandos(self):
         while True:
-            print("\nLISTA TELEFONICA")
+            print("\n=====MENU DA REDE =====")
             print("1 - Ler arquivo")
             print("2 - Buscar arquivo")
             print("3 - ID Atual")
             print("4 - Pares atuais")
             print("5 - Sair da rede")
+            print("\n=========================")
 
             escolha = int(input("\nDigite sua escolha: "))
 
