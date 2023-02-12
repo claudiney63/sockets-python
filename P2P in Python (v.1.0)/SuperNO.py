@@ -116,20 +116,20 @@ class SuperNO:
 
                     node_anterior = node_saida - 1
 
-                    cliente.send(
+                    self.cliente.send(
                         f"P{node_anterior}//CONECTAR_NODE//{self.peers_list[node_saida]}|".encode("utf-8"))
-                    cliente.send(
+                    self.cliente.send(
                         f"P{node_saida + 1}//NOVO_ID//{node_saida}|".encode("utf-8"))
 
                 elif info_add[1] == "1":
                     self.peers_list.pop(1)
-                    cliente.close()
+                    self.cliente.close()
                     connect_to = self.peers_list[1]
 
-                    cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    cliente.connect(connect_to)
+                    self.cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.cliente.connect(connect_to)
                     print("Novo nó conectado")
-                    cliente.send(f"P2//NOVO_ID//1|".encode("utf-8"))
+                    self.cliente.send(f"P2//NOVO_ID//1|".encode("utf-8"))
 
     def busca_arquivo(self, destino, comando):
         """

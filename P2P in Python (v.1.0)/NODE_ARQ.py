@@ -53,7 +53,7 @@ class Node:
                     self.busca_arquivo(destino, message_controller, comando, info_add)
 
                     if destino == "SUPER_NO":
-                        self.cliente.send(f"{comando}Z".encode("utf-8"))
+                        self.cliente.send(f"{comando}|".encode("utf-8"))
 
     def verifica_id(self, destino, info_add, comando):
         """
