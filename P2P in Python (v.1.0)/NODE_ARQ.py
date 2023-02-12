@@ -33,27 +33,27 @@ class Node:
             while True:
 
                 data_received = con.recv(1024)
-                commands = data_received.decode('utf-8')
+                comandos_recebidos = data_received.decode('utf-8')
 
                 if not data_received:
                     break
 
-                for command in commands.split('|'):
-                    if command == "":
+                for comando in comandos_recebidos.split('|'):
+                    if comando == "":
                         continue
 
-                    destino, message_controller, info_add = command.split("//")
+                    destino, message_controller, info_add = comando.split("//")
 
-                    self.verifica_id(destino, info_add, command)
+                    self.verifica_id(destino, info_add, comando)
 
-                    self.receber_mensagem(destino, command, message_controller, info_add)
+                    self.receber_mensagem(destino, comando, message_controller, info_add)
 
-                    self.busca_arquivo(destino, message_controller, command, info_add)
+                    self.busca_arquivo(destino, message_controller, comando, info_add)
 
                     if destino == "SUPER_NO":
-                        self.cliente.send(f"{command}Z".encode("utf-8"))
+                        self.cliente.send(f"{comando}Z".encode("utf-8"))
 
-    def verifica_id(self, destino, info_add, command):
+    def verifica_id(self, destino, info_add, comando):
         """
         A função verifica se o valor de "destino" é igual a "ID". Se for, ele verifica se o ID deste nó é igual a zero. 
         Se for, ele atribui o valor de "info_add" ao ID do nó. Se não for, ele envia uma mensagem codificada para o cliente do pro//imo nó
@@ -64,9 +64,9 @@ class Node:
             if self.id == 0:
                 self.id = info_add
             else:
-                self.cliente.send(f"{command}|".encode("utf-8"))
+                self.cliente.send(f"{comando}|".encode("utf-8"))
 
-    def receber_mensagem(self, destino, command, message_controller, info_add):
+    def receber_mensagem(self, destino, comando, message_controller, info_add):
         """
         Essa função verifica se a mensagem é destinada a um node específico (verificado pelo primeiro caractere da variável "destino" ser igual a "P"). 
         Se for para outro node, a mensagem é reencaminhada para o próximo. Se for para esse node, ele executa o comando especificado na mensagem.
@@ -78,7 +78,7 @@ class Node:
         """
         if destino[0] == f'P':
             if destino != f"P{self.id}":
-                self.cliente.send(f"{command}|".encode("utf-8"))
+                self.cliente.send(f"{comando}|".encode("utf-8"))
 
             elif destino == f"P{self.id}":
                 if message_controller == "CONECTAR_NODE":
@@ -109,7 +109,7 @@ class Node:
                         file.write(info_add)
                     #######
 
-    def busca_arquivo(self, destino, message_controller, command, info_add):
+    def busca_arquivo(self, destino, message_controller, comando, info_add):
         """
         A função busca um arquivo  
         Se o arquivo procurado estiver na rede, o node envia a informação de onde o arquivo foi encontrado para o destinatário da mensagem. 
@@ -130,7 +130,7 @@ class Node:
                     print("Arquivo não encontrado")
                 else:
                     print("Repassando para outro node!")
-                    self.cliente.send(f"{command}|".encode("utf-8"))
+                    self.cliente.send(f"{comando}|".encode("utf-8"))
 
     def central_comandos(self):
         while True:

@@ -24,28 +24,28 @@ class SuperNO:
                 print(self.peers_list)
 
                 data_received = con.recv(1024)
-                commands = data_received.decode("utf-8")
+                comandos_recebidos = data_received.decode("utf-8")
 
                 if not data_received:
                     break
 
-                for command in commands.split("|"):
-                    if command == "":
+                for comando in comandos_recebidos.split("|"):
+                    if comando == "":
                         continue
 
                     print(f"\nCOMANDO DO SUPER NÓ: ")
-                    destino, message_controller, info_add = command.split("//")
+                    destino, message_controller, info_add = comando.split("//")
                     print(f'Destino: {destino}')
                     print(f'Mensagem de Controler: {message_controller}')
                     print(f'Info Adicional: {info_add}\n')
 
                     self.entrada_node(destino, info_add, adr)
 
-                    self.entrada_novo_node(destino, message_controller, command)
+                    self.entrada_novo_node(destino, message_controller, comando)
 
                     self.controller_super_no(destino, message_controller, info_add)
 
-                    self.busca_arquivo(destino, command)
+                    self.busca_arquivo(destino, comando)
 
     def entrada_node(self, destino, info_add, adr):
         """
@@ -74,7 +74,7 @@ class SuperNO:
                 self.cliente.send(
                     f"ID//NOVO_ID//{len(self.peers_list) - 1}|".encode("utf-8"))
 
-    def entrada_novo_node(self, destino, message_controller, command):
+    def entrada_novo_node(self, destino, message_controller, comando):
         """
         Esta função manipula a entrada de um novo nó em uma rede P2P. Se o destino da mensagem for um peer (identificado pelo prefixo "P"), 
         então a mensagem é processada. Se a mensagem contém o controle "NOVO_ID", a função não faz nada. Caso contrário, a mensagem é 
@@ -84,7 +84,7 @@ class SuperNO:
             if message_controller == "NOVO_ID":
                 pass
             else:
-                self.cliente.send(f"{command}|".encode("utf-8"))
+                self.cliente.send(f"{comando}|".encode("utf-8"))
 
     def controller_super_no(self, destino, message_controller, info_add):
         """
@@ -128,15 +128,15 @@ class SuperNO:
                     print("Novo nó conectado")
                     cliente.send(f"P2//NOVO_ID//1|".encode("utf-8"))
 
-    def busca_arquivo(self, destino, command):
+    def busca_arquivo(self, destino, comando):
         """
         Esta função realiza uma busca de um arquivo em algum outro node na rede. A função "busca_arquivo" recebe 
-        como parâmetros "destino" e "command". Se o valor de "destino" for "BUSCA_ARQUIVO", o código envia a 
-        mensagem de busca de arquivo (representada por "command") para o socket conectado (representado por "self.cliente"). 
+        como parâmetros "destino" e "comando". Se o valor de "destino" for "BUSCA_ARQUIVO", o código envia a 
+        mensagem de busca de arquivo (representada por "comando") para o socket conectado (representado por "self.cliente"). 
         A mensagem é enviada em formato de codificação "utf-8" com o caractere "|" no final.
         """
         if (destino == "BUSCA_ARQUIVO"):
-            self.cliente.send(f"{command}|".encode("utf-8"))
+            self.cliente.send(f"{comando}|".encode("utf-8"))
 
 if __name__ == "__main__":
     supeNo = SuperNO('192.168.0.37', 5000)
