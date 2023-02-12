@@ -1,6 +1,9 @@
 import socket
 from threading import Thread
 
+HOST = '192.168.0.37'
+PORT = 5000
+
 class SuperNO:
     def __init__(self, host, port):
         self.connect_to = None
@@ -139,5 +142,5 @@ class SuperNO:
             self.cliente.send(f"{comando}|".encode("utf-8"))
 
 if __name__ == "__main__":
-    supeNo = SuperNO('192.168.0.37', 5000)
+    supeNo = SuperNO(HOST, PORT)
     supeNo.start()
