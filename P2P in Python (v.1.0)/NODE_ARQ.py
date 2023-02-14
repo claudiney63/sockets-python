@@ -2,13 +2,13 @@ from random import randint
 import socket
 from threading import Thread
 
-HOST = '192.168.0.37'
+SUPER_HOST = '10.13.74.20'
 
 class Node:
     def __init__(self, node_ip):
         self.node_ip = node_ip
         self.node_port = randint(5001, 5999)
-        self.super_ip = HOST
+        self.super_ip = SUPER_HOST
         self.super_port = 5000
         self.id = 0
         self.nome_arqui = "p1.txt"
@@ -180,5 +180,5 @@ class Node:
 
 
 if __name__ == "__main__":
-    novo_node = Node(HOST)
+    novo_node = Node('192.168.45.90')
     novo_node.start_node()

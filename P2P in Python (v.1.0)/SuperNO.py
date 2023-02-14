@@ -1,7 +1,7 @@
 import socket
 from threading import Thread
 
-HOST = '192.168.0.37'
+HOST = '10.13.74.20'
 PORT = 5000
 
 class SuperNO:
@@ -12,7 +12,7 @@ class SuperNO:
         self.peers_list = [(socket.gethostbyname(socket.gethostname()), 5000)]
         self.cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.servidor.bind((host, port))
+        self.servidor.bind((HOST, PORT))
         self.servidor.listen()
 
     def start(self):
