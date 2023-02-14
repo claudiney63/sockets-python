@@ -1,6 +1,7 @@
 from random import randint
 import socket
 from threading import Thread
+import os
 
 SUPER_HOST = '10.13.74.20'
 
@@ -174,6 +175,7 @@ class Node:
                 self.cliente.close()
                 self.servidor.close()
                 print(f"Node P{self.id} saiu da rede!!")
+                os._exit(0)
 
             if escolha <= 0 and escolha >= 7:
                 print("\nInforme uma escolha correta!")
