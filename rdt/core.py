@@ -16,7 +16,7 @@ def menu():
     global opc
 
     while True:
-        print("Estado atual:")
+        print("Menu de Interações:")
         print("1 - Reenviar normalmente")
         print("2 - Descartar pacote")
         print("3 - Apagar ack")

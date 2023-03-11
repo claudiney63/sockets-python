@@ -1,10 +1,10 @@
-from socket import socket
+from socket import socket, AF_INET, SOCK_DGRAM, gethostbyname, gethostname
 from time import sleep
 from threading import Thread, Lock
 
-my_ip = socket.gethostbyname(socket.gethostname()) # todo change to get a input or gambiarra
+my_ip = gethostbyname(gethostname()) # todo change to get a input or gambiarra
 
-skt = socket(socket.AF_INET, socket.SOCK_DGRAM) # AF_INET = IPV4 | SOCK_DGRAM = UDP
+skt = socket(AF_INET, SOCK_DGRAM) # AF_INET = IPV4 | SOCK_DGRAM = UDP
 skt.bind((my_ip, 7000)) # todo change to 5000 port
 
 ack_number = 0
