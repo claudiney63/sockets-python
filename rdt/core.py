@@ -48,9 +48,9 @@ def core():
                 sleep(2)
                 skt.sendto(data, (remetente_ip, 4000))
             elif opc == 5:
-                checksum = checksum_calculator(data)
-                print(f"\nChecksum: {bin(int(str(hex(checksum)), 16))}")
+                
                 ip, serial_number, checksum = data.split("|")
+                print(f"\nChecksum: {bin(int(str(hex(checksum)), 16))}")
                 checksum += "0"
                 segment_data = f"{serial_number[1:-1]}{serial_number[-1]}"
                 segment = f"{ip}|{serial_number}{segment_data}|{checksum}"
@@ -67,7 +67,6 @@ def core():
             elif opc == 4:
                 skt.sendto(data, (destino_ip, 7000))
             elif opc == 5:
-                checksum = checksum_calculator(data)
                 print(f"\nChecksum: {bin(int(str(hex(checksum)), 16))}")
                 ip, serial_number, checksum = data.split("|")
 
