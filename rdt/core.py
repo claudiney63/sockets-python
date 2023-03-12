@@ -26,7 +26,7 @@ def menu():
         print("2 - Descartar pacote")
         print("3 - Apagar ack")
         print("4 - Enviar ack com atraso")
-        print("5 - Verificar Checksum")
+        print("5 - Comromper Checksum")
 
         opc = int(input("O que deseja fazer com o pacote: "))
     
@@ -49,7 +49,12 @@ def core():
                 skt.sendto(data, (remetente_ip, 4000))
             elif opc == 5:
                 checksum = checksum_calculator(data)
-                print(f"\nChecksum (hex): {bin(int(str(hex(checksum)), 16))}")
+                print(f"\nChecksum: {bin(int(str(hex(checksum)), 16))}")
+                ip, serial_number, checksum = data.split("|")
+                checksum += "0"
+                segment_data = f"{serial_number[1:-1]}{serial_number[-1]}"
+                segment = f"{ip}|{serial_number}{segment_data}|{checksum}"
+                skt.sendto(segment, (remetente_ip, 4000))
             else:
                 print("Opção inválida")
         else:
@@ -63,18 +68,26 @@ def core():
                 skt.sendto(data, (destino_ip, 7000))
             elif opc == 5:
                 checksum = checksum_calculator(data)
-                print(f"\nChecksum (hex): {bin(int(str(hex(checksum)), 16))}")
+                print(f"\nChecksum: {bin(int(str(hex(checksum)), 16))}")
+                ip, serial_number, checksum = data.split("|")
+
+                checksum += "0"
+                segment_data = f"{serial_number[1:-1]}{serial_number[-1]}"
+                segment = f"{ip}|{serial_number}{segment_data}|{checksum}"
+                
+                skt.sendto(segment, (remetente_ip, 4000))
             else:
                 print("Opção inválida")
 
         # opc = 0
 
         # print(f"\nReceived data: {data.decode()}")
-        ip, serial_number = data.split("|")
+        ip, serial_number, checksum = data.split("|")
         print("=================================")
         print(f"Ip remetente: {ip}")
         print(f"Serial Number: {serial_number[0]}")
         print(f"Mensagem recebida: {serial_number[1:-1]}{serial_number[-1]}")
+        print(f"\nChecksum: {bin(int(str(hex(checksum)), 16))}")
         print("=================================\n")
 
 def checksum_calculator(data):
