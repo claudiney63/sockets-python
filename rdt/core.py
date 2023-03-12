@@ -69,7 +69,13 @@ def core():
 
         # opc = 0
 
-        print(f"\nReceived data: {data.decode()}")
+        # print(f"\nReceived data: {data.decode()}")
+        ip, serial_number = data.split("|")
+        print("=================================")
+        print(f"Ip remetente: {ip}")
+        print(f"Serial Number: {serial_number[0]}")
+        print(f"Mensagem recebida: {serial_number[1:-1]}{serial_number[-1]}")
+        print("=================================\n")
 
 def checksum_calculator(data):
     checksum = zlib.crc32(data)
