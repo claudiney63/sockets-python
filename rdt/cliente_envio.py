@@ -2,9 +2,9 @@ from socket import socket, AF_INET, SOCK_DGRAM, gethostbyname, gethostname
 from time import sleep
 from threading import Thread, Lock
 
-core_ip = gethostbyname(gethostname()) # todo change to input("Enter ip of network: ")
+core_ip = "192.168.1.5" # todo change to input("Enter ip of network: ")
 my_ip = gethostbyname(gethostname()) # todo change to get a input or gambiarra
-addressee_ip = input("Enter ip of addressee: ")
+destino_ip = input("Enter ip of addressee: ")
 
 serial_number = 0
 
@@ -19,8 +19,8 @@ def send():
     global skt
     
     while True:
-        data = input("Enter data to send: ")
-        make_segments(addressee_ip, skt, data)
+        data = input("\nEnter data to send: ")
+        make_segments(destino_ip, skt, data)
 
 def make_segments(addressee_addr: str,  skt: socket, data: str) -> None:
     global serial_number, ack
