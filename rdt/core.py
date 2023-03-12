@@ -21,7 +21,7 @@ def menu():
     global opc
 
     while True:
-        print("Menu de Interações:")
+        print("\nMenu de Interações:")
         print("1 - Reenviar normalmente")
         print("2 - Descartar pacote")
         print("3 - Apagar ack")
@@ -39,17 +39,17 @@ def core():
 
         if data.decode("utf-8") == "ack0" or data.decode("utf-8") == "ack1":
             if opc == 1:
-                skt.sendto(data, (remetente_ip, 5000))
+                skt.sendto(data, (remetente_ip, 4000))
             elif opc == 2:
-                skt.sendto(data, (remetente_ip, 5000))
+                skt.sendto(data, (remetente_ip, 4000))
             elif opc == 3:
                 pass
             elif opc == 4:
                 sleep(2)
-                skt.sendto(data, (remetente_ip, 5000))
+                skt.sendto(data, (remetente_ip, 4000))
             elif opc == 5:
                 checksum = checksum_calculator(data)
-                print(f"\nChecksum (hex): {hex(checksum)}")
+                print(f"\nChecksum (hex): {bin(int(str(hex(checksum)), 16))}")
             else:
                 print("Opção inválida")
         else:
@@ -63,7 +63,7 @@ def core():
                 skt.sendto(data, (destino_ip, 7000))
             elif opc == 5:
                 checksum = checksum_calculator(data)
-                print(f"\nChecksum (hex): {hex(checksum)}")
+                print(f"\nChecksum (hex): {bin(int(str(hex(checksum)), 16))}")
             else:
                 print("Opção inválida")
 
@@ -74,6 +74,7 @@ def core():
 def checksum_calculator(data):
     checksum = zlib.crc32(data)
     return checksum
+
 
 Thread(target=menu).start()
 Thread(target=core).start()

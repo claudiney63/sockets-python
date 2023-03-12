@@ -2,7 +2,7 @@ from socket import socket, AF_INET, SOCK_DGRAM, gethostbyname, gethostname
 from time import sleep
 from threading import Thread, Lock
 
-core_ip = "192.168.1.5" # todo change to input("Enter ip of network: ")
+core_ip = "192.168.1.9" # todo change to input("Enter ip of network: ")
 my_ip = gethostbyname(gethostname()) # todo change to get a input or gambiarra
 destino_ip = input("Enter ip of addressee: ")
 
@@ -13,7 +13,7 @@ with critical:
     ack = False
 
 skt = socket(AF_INET, SOCK_DGRAM) # AF_INET = IPV4 | SOCK_DGRAM = UDP
-skt.bind((my_ip, 5000))
+skt.bind((my_ip, 4000))
 
 def send():
     global skt

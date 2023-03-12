@@ -24,7 +24,7 @@ def receive():
         print("=================================")
         print(f"Ip remetente: {ip}")
         print(f"Serial Number: {serial_number[0]}")
-        print(f"Mensagem recebida: {serial_number[1:-1]}")
+        print(f"Mensagem recebida: {serial_number[1:-1]}{serial_number[-1]}")
         print("=================================\n")
 
         if int(serial_number[0]) == ack_number:
