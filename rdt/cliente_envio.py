@@ -3,80 +3,85 @@ from time import sleep
 from threading import Thread, Lock
 import zlib
 
-core_ip = "192.168.1.9" # todo change to input("Enter ip of network: ")
-my_ip = gethostbyname(gethostname()) # todo change to get a input or gambiarra
-destino_ip = input("Enter ip of addressee: ")
+class Sender:
+    def __init__(self, core_ip, sender_ip, receive_ip):
+        self.core_ip = core_ip
+        self.sender_ip = sender_ip
+        self.receive_ip = receive_ip
+        self.numero_de_serie = 0
 
-serial_number = 0
+        critical = Lock()
+        self.critical = critical
 
-critical = Lock()
-with critical:
-    ack = False
+        with self.critical:
+            self.ack = False
 
-skt = socket(AF_INET, SOCK_DGRAM) # AF_INET = IPV4 | SOCK_DGRAM = UDP
-skt.bind((my_ip, 4000))
+        self.skt = socket(AF_INET, SOCK_DGRAM)  # AF_INET = IPV4 | SOCK_DGRAM = UDP
+        self.skt.bind((self.sender_ip, 4000))
 
-def send():
-    global skt
-    
-    while True:
-        data = input("\nEnter data to send: ")
-        make_segments(destino_ip, skt, data)
+    def send(self):
 
-def make_segments(addressee_addr: str,  skt: socket, data: str) -> None:
-    global serial_number, ack
-
-    checksum = checksum_calculator(data)
-
-    for i in range(0, len(data), 1024):
-        segment_data = data[i:i+1024]
-        segment = f"{addressee_addr}|{serial_number}{segment_data}|{checksum}"
-
-        skt.sendto(segment.encode("utf-8"), (core_ip, 6000))
-        
         while True:
-            sleep(1)
+            data = input("\nEnvie uma mensagem: ")
+            self.criar_segmento(self.receive_ip, self.skt, data)
 
-            with critical:
-                if ack:
-                    # print("Received ack")
-                    ack = False
-                    
-                    break
-                else:
-                    skt.sendto(segment.encode("utf-8"), (core_ip, 6000)) # todo change to 5000 port
-                    
-        skt.settimeout(3)
+    def criar_segmento(self, adrr: str,  skt: socket, data: str) -> None:
 
-        if serial_number == 0:
-            serial_number = 1
-        else:
-            serial_number = 0
+        checksum = self.checksum_calculator(data.encode())
 
-def receive():
-    global skt, ack
+        for i in range(0, len(data), 1024):
+            segment_data = data[i:i+1024]
+            segment = f"{adrr}|{self.numero_de_serie}{segment_data}|{checksum}"
 
-    while True:
-        try:
-            data, addr = skt.recvfrom(1024) # receive data and client address
-            data = data.decode("utf-8")
-            if data == "ack0" and serial_number == 0:
-                with critical:
-                    print(f"Received right ack {serial_number}")
-                    ack = True
-            elif data == "ack1" and serial_number == 1:
-                with critical:
-                    print(f"Received rick ack {serial_number}")
-                    ack = True
-        except timeout:
-            print("except")
+            self.skt.sendto(segment.encode("utf-8"), (self.core_ip, 6000))
 
-        
+            while True:
+                sleep(1)
 
-def checksum_calculator(data):
-    checksum = zlib.crc32(data)
-    return checksum
-        
+                with self.critical:
+                    if self.ack:
+                        self.ack = False
 
-Thread(target=receive).start()
-Thread(target=send).start()
+                        break
+                    else:
+                        # todo change to 5000 port
+                        self.skt.sendto(segment.encode("utf-8"), (self.core_ip, 6000))
+
+            skt.settimeout(3)
+
+            if self.numero_de_serie == 0:
+                self.numero_de_serie = 1
+            else:
+                self.numero_de_serie = 0
+
+    def receive(self):
+
+        while True:
+            try:
+                # receive data and client address
+                data, addr = self.skt.recvfrom(1024)
+                data = data.decode("utf-8")
+
+                if data == "ack0" and self.numero_de_serie == 0:
+                    with self.critical:
+                        print(f"Recebido ack {self.numero_de_serie}")
+                        self.ack = True
+
+                elif data == "ack1" and self.numero_de_serie == 1:
+                    with self.critical:
+                        print(f"Recebido ack {self.numero_de_serie}")
+                        self.ack = True
+            except timeout:
+                print("except")
+
+    def checksum_calculator(self, data):
+        checksum = zlib.crc32(data)
+        return checksum
+    
+    def run(self):
+        Thread(target=self.receive).start()
+        Thread(target=self.send).start()
+
+if __name__ == "__main__":
+    send = Sender("192.168.1.9", "192.168.1.9", "192.168.1.9")
+    send.run()

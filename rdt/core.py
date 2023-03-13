@@ -8,7 +8,7 @@ host = "192.168.1.9"
 port = 6000 # todo change to 5000 port
 
 destino_ip = "192.168.1.9"
-remetente_ip = "192.168.1.5"
+remetente_ip = "192.168.1.9"
 
 skt = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # AF_INET = IPV4 | SOCK_DGRAM = UDP
 skt.bind((host, port))
@@ -88,11 +88,6 @@ def core():
         print(f"Mensagem recebida: {serial_number[1:-1]}{serial_number[-1]}")
         print(f"\nChecksum: {bin(int(str(hex(checksum)), 16))}")
         print("=================================\n")
-
-def checksum_calculator(data):
-    checksum = zlib.crc32(data)
-    return checksum
-
 
 Thread(target=menu).start()
 Thread(target=core).start()
