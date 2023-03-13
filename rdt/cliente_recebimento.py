@@ -34,7 +34,7 @@ class Receive:
             print(f"Checksum (recebido): {bin(int(str(hex(checksum)), 16))}")
             print("=================================\n")
 
-            if(self.compare_checksums(bin(int(str(hex(checksum)), 16)), bin(int(str(hex(checksum)), 16)))) == False:
+            if(self.compare_checksums(bin(int(str(hex(checksum)), 16)), bin(int(str(hex(checksum)), 16)))):
                 print("Checksum São iguais")
 
                 if int(serial_number[0]) == self.ack_number:
